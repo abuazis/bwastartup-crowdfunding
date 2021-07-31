@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bwastartup-crowdfunding/exception"
 	"bwastartup-crowdfunding/model"
 	"bwastartup-crowdfunding/service"
 	"context"
@@ -21,36 +22,29 @@ func (userController *userController) Register(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, model.WebResponse{
-			Meta: model.MetaResponse{
-				Code:    http.StatusBadRequest,
-				Status:  http.StatusText(http.StatusBadRequest),
-				Message: err.Error(),
-			},
-			Data: nil,
+		c.JSON(http.StatusUnprocessableEntity, model.WebResponse{
+			Code:   http.StatusUnprocessableEntity,
+			Status: http.StatusText(http.StatusUnprocessableEntity),
+			Data:   exception.ValidationError(err),
 		})
+		return
 	}
 
 	ctx := context.Background()
 	response, err := userController.userService.Register(ctx, request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
-			Meta: model.MetaResponse{
-				Code:    http.StatusBadRequest,
-				Status:  http.StatusText(http.StatusBadRequest),
-				Message: err.Error(),
-			},
-			Data: nil,
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   nil,
 		})
+		return
 	}
 
 	// Success
 	c.JSON(http.StatusOK, model.WebResponse{
-		Meta: model.MetaResponse{
-			Code:    http.StatusOK,
-			Status:  http.StatusText(http.StatusOK),
-			Message: "Account has been registered",
-		},
-		Data: response,
+		Code:   http.StatusOK,
+		Status: http.StatusText(http.StatusOK),
+		Data:   response,
 	})
 }
