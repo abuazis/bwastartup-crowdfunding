@@ -33,3 +33,14 @@ func TestUserRepositoryImpl_Save(t *testing.T) {
 	}
 	fmt.Println(saveUser)
 }
+
+func TestUserRepositoryImpl_FindByEmail(t *testing.T) {
+	ctx := context.Background()
+	user, err := repository.FindByEmail(ctx, "service@test.com")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Println(user)
+}
+
+

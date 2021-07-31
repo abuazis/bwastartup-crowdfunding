@@ -35,3 +35,42 @@ func TestUserServiceImpl_Register(t *testing.T) {
 	}
 	fmt.Println(register)
 }
+
+func TestUserServiceImpl_Login(t *testing.T) {
+	ctx := context.Background()
+	request := model.LoginRequest{
+		Email:    "service@test.com",
+		Password: "itsSecureTrustMe12",
+	}
+	loginResponse, err := userService.Login(ctx, request)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Println(loginResponse)
+}
+
+func TestUserServiceImpl_LoginEmailFail(t *testing.T) {
+	ctx := context.Background()
+	request := model.LoginRequest{
+		Email:    "notfound@test.com",
+		Password: "itsSecureTrustMe12",
+	}
+	loginResponse, err := userService.Login(ctx, request)
+	if err == nil {
+		t.Fail()
+	}
+	fmt.Println(loginResponse)
+}
+
+func TestUserServiceImpl_LoginPasswordFailAndSQLInjection(t *testing.T) {
+	ctx := context.Background()
+	request := model.LoginRequest{
+		Email:    "service@test.com",
+		Password: "wrongPassword#;",
+	}
+	loginResponse, err := userService.Login(ctx, request)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Println(loginResponse)
+}

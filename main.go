@@ -19,5 +19,6 @@ func main() {
 	api := r.Group("/api/v1")
 
 	api.POST("/users", userController.Register)
+	api.POST("/sessions", userController.Login)
 	log.Fatalln(r.Run())
 }

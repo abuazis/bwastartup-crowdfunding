@@ -16,7 +16,7 @@ func NewUserServiceImpl(repository repository.UserRepository) *UserServiceImpl {
 	return &UserServiceImpl{repository: repository}
 }
 
-func (u UserServiceImpl) Register(ctx context.Context, request model.RegisterRequest) (model.RegisterResponse, error) {
+func (u *UserServiceImpl) Register(ctx context.Context, request model.RegisterRequest) (model.RegisterResponse, error) {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.MinCost)
 	if err != nil {
 		return model.RegisterResponse{}, err
@@ -40,5 +40,22 @@ func (u UserServiceImpl) Register(ctx context.Context, request model.RegisterReq
 		Occupation: save.Occupation,
 		Email:      save.Email,
 		Token:      "not implemented yet",
+	}, nil
+}
+
+func (u *UserServiceImpl) Login(ctx context.Context, request model.LoginRequest) (model.LoginResponse, error) {
+	user, err := u.repository.FindByEmail(ctx, request.Email)
+	if err != nil {
+		return model.LoginResponse{}, err
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(request.Password))
+	if err != nil {
+		return model.LoginResponse{}, err
+	}
+	return model.LoginResponse{
+		Id:    user.Id,
+		Name:  user.Name,
+		Email: user.Email,
+		Token: "Not implemented",
 	}, nil
 }
