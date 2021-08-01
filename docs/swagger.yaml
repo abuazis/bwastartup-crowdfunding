@@ -1,0 +1,99 @@
+basePath: /api/v1
+definitions:
+  model.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      occupation:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - occupation
+    - password
+    type: object
+  model.RegisterResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      occupation:
+        type: string
+      token:
+        type: string
+    type: object
+  model.WebResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      status:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Contains API for bwastartup-crowdfunding project
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Crowdfunding Web API
+  version: "1.0"
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create account with name, occupation, email, and password data
+      operationId: register-user
+      parameters:
+      - description: Register Account
+        in: body
+        name: RegisterRequest
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.RegisterResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    type: string
+                  type: array
+              type: object
+      summary: Register account
+schemes:
+- http
+swagger: "2.0"

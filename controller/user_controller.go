@@ -20,6 +20,17 @@ func NewUserController(userService service.UserService) *userController {
 	return &userController{userService: userService}
 }
 
+// Register godoc
+// @Summary Register account
+// @Description Create account with name, occupation, email, and password data
+// @ID register-user
+// @Accept  json
+// @Produce  json
+// @Param RegisterRequest body model.RegisterRequest true "Register Account"
+// @Success 200 {object} model.WebResponse{data=model.RegisterResponse}
+// @Failure 400 {object} model.WebResponse{data=string}
+// @Failure 422 {object} model.WebResponse{data=[]string}
+// @Router /users [post]
 func (userController *userController) Register(c *gin.Context) {
 	var request model.RegisterRequest
 
