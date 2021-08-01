@@ -22,18 +22,24 @@ import (
 // @host localhost:8080
 // @BasePath /api/v1
 // @schemes http
+
 func main() {
 	db := database.GetConnection()
+
+	authService := service.NewAuthServiceImpl()
+
 	userRepository := repository.NewUserRepositoryImpl(db)
 	userService := service.NewUserServiceImpl(userRepository)
-	userController := controller.NewUserController(userService)
+	userController := controller.NewUserController(userService, authService)
 
 	r := gin.Default()
 	v1 := r.Group("/api/v1")
-
-	v1.POST("/users", userController.Register)
-	v1.POST("/sessions", userController.Login)
+	{
+		v1.POST("/users", userController.Register)
+		v1.POST("/sessions", userController.Login)
+	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	log.Fatalln(r.Run(":8080"))
 }

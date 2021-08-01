@@ -39,7 +39,6 @@ func (u *UserServiceImpl) Register(ctx context.Context, request model.RegisterRe
 		Name:       save.Name,
 		Occupation: save.Occupation,
 		Email:      save.Email,
-		Token:      "not implemented yet",
 	}, nil
 }
 

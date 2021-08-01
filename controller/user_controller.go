@@ -14,10 +14,11 @@ import (
 
 type userController struct {
 	userService service.UserService
+	authService service.AuthService
 }
 
-func NewUserController(userService service.UserService) *userController {
-	return &userController{userService: userService}
+func NewUserController(userService service.UserService, authService service.AuthService) *userController {
+	return &userController{userService: userService, authService: authService}
 }
 
 // Register godoc
@@ -34,6 +35,7 @@ func NewUserController(userService service.UserService) *userController {
 func (userController *userController) Register(c *gin.Context) {
 	var request model.RegisterRequest
 
+	// Get request data
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, model.WebResponse{
@@ -55,6 +57,8 @@ func (userController *userController) Register(c *gin.Context) {
 		})
 		return
 	}
+
+	// Create user
 	response, err := userController.userService.Register(ctx, request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
@@ -65,6 +69,18 @@ func (userController *userController) Register(c *gin.Context) {
 		return
 	}
 
+	// Generate JWT
+	generateToken, err := userController.authService.GenerateToken(response.Id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+	response.Token = generateToken
+
 	// Success
 	c.JSON(http.StatusOK, model.WebResponse{
 		Code:   http.StatusOK,
@@ -73,7 +89,20 @@ func (userController *userController) Register(c *gin.Context) {
 	})
 }
 
+// Login godoc
+// @Summary Login account
+// @Description Login account use email and password.
+// @ID login-user
+// @Accept  json
+// @Produce  json
+// @Param RegisterRequest body model.LoginRequest true "Login Account"
+// @Success 200 {object} model.WebResponse{data=model.LoginResponse}
+// @Failure 400 {object} model.WebResponse{data=string}
+// @Failure 422 {object} model.WebResponse{data=[]string}
+// @Failure 500 {object} model.WebResponse{data=string}
+// @Router /users [post]
 func (userController *userController) Login(c *gin.Context) {
+	// Get request data
 	var loginRequest model.LoginRequest
 	err := c.ShouldBindJSON(&loginRequest)
 	if err != nil {
@@ -85,6 +114,7 @@ func (userController *userController) Login(c *gin.Context) {
 		return
 	}
 
+	// User login
 	ctx := context.Background()
 	response, err := userController.userService.Login(ctx, loginRequest)
 	if err != nil {
@@ -109,6 +139,18 @@ func (userController *userController) Login(c *gin.Context) {
 		}
 		return
 	}
+
+	// Generate JWT
+	generateToken, err := userController.authService.GenerateToken(response.Id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+	response.Token = generateToken
 
 	// Success
 	c.JSON(http.StatusOK, model.WebResponse{

@@ -12,10 +12,13 @@ import (
 var userRepository repository.UserRepository
 var userService UserService
 
+// Main test for service package
 func TestMain(m *testing.M) {
 	db := database.GetConnection()
 	userRepository = repository.NewUserRepositoryImpl(db)
 	userService = NewUserServiceImpl(userRepository)
+
+	authService = NewAuthServiceImpl()
 
 	m.Run()
 }
