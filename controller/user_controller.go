@@ -33,13 +33,23 @@ func (userController *userController) Register(c *gin.Context) {
 		return
 	}
 
+	// Check Email
 	ctx := context.Background()
+	_, err = userController.userService.CheckEmail(ctx, request.Email)
+	if err == nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   "Email has been registered",
+		})
+		return
+	}
 	response, err := userController.userService.Register(ctx, request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
 			Code:   http.StatusBadRequest,
 			Status: http.StatusText(http.StatusBadRequest),
-			Data:   nil,
+			Data:   err.Error(),
 		})
 		return
 	}
@@ -83,7 +93,7 @@ func (userController *userController) Login(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, model.WebResponse{
 				Code:   http.StatusInternalServerError,
 				Status: http.StatusText(http.StatusInternalServerError),
-				Data:   nil,
+				Data:   err.Error(),
 			})
 		}
 		return

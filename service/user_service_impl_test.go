@@ -74,3 +74,13 @@ func TestUserServiceImpl_LoginPasswordFailAndSQLInjection(t *testing.T) {
 	}
 	fmt.Println(loginResponse)
 }
+
+func TestUserServiceImpl_CheckEmail(t *testing.T) {
+	ctx := context.Background()
+	email := "service@test.com"
+	checkEmail, err := userService.CheckEmail(ctx, email)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Println(checkEmail)
+}

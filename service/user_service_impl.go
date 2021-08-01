@@ -59,3 +59,11 @@ func (u *UserServiceImpl) Login(ctx context.Context, request model.LoginRequest)
 		Token: "Not implemented",
 	}, nil
 }
+
+func (u *UserServiceImpl) CheckEmail(ctx context.Context, email string) (bool, error) {
+	_, err := u.repository.FindByEmail(ctx, email)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
