@@ -30,3 +30,20 @@ func (u *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (ent
 	}
 	return user, nil
 }
+
+func (u *UserRepositoryImpl) FindById(ctx context.Context, id uint32) (entity.User, error) {
+	var user entity.User
+	err := u.Db.WithContext(ctx).Where("id=?", id).First(&user).Error
+	if err != nil {
+		return entity.User{}, err
+	}
+	return user, nil
+}
+
+func (u *UserRepositoryImpl) UpdateAvatar(ctx context.Context, id uint32, avatarFileName string) (bool, error) {
+	err := u.Db.WithContext(ctx).Model(&entity.User{}).Where("id=?", id).Update("avatar_file_name", avatarFileName).Error
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}

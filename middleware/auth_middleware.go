@@ -49,7 +49,7 @@ func AuthMiddleware(authService service.AuthService, userService service.UserSer
 		}
 
 		userId := uint32(claims["user_id"].(float64))
-		user, err := userService.CheckId(context.Background(), userId)
+		user, err := userService.FindById(context.Background(), userId)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, model.WebResponse{
 				Code:   http.StatusUnauthorized,

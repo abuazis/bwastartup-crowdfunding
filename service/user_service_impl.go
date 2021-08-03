@@ -5,7 +5,11 @@ import (
 	"bwastartup-crowdfunding/model"
 	"bwastartup-crowdfunding/repository"
 	"context"
+	"errors"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"path/filepath"
+	"strings"
 )
 
 type UserServiceImpl struct {
@@ -65,4 +69,38 @@ func (u *UserServiceImpl) CheckEmail(ctx context.Context, email string) (bool, e
 		return false, err
 	}
 	return true, nil
+}
+
+func (u *UserServiceImpl) FindById(ctx context.Context, id uint32) (entity.User, error) {
+	user, err := u.repository.FindById(ctx, id)
+	if err != nil {
+		return entity.User{}, err
+	}
+	return user, nil
+}
+
+// SaveAvatar return generateFileName
+func (u *UserServiceImpl) SaveAvatar(ctx context.Context, id uint32, fileName string) (string, error) {
+	user, err := u.FindById(ctx, id)
+	if err != nil {
+		return "", err
+	}
+
+	ext := filepath.Ext(fileName)
+	// Validate image extension
+	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
+		return "", errors.New("upload: invalid file extension")
+	}
+	generateName := u.GenerateAvatarName(id, user.Name, ext)
+
+	_, err = u.repository.UpdateAvatar(ctx, id, generateName)
+	if err != nil {
+		return "", err
+	}
+	return generateName, nil
+}
+
+func (u *UserServiceImpl) GenerateAvatarName(id uint32, userName string, extension string) string {
+	name := strings.Join(strings.Split(userName, " "), "-")
+	return fmt.Sprintf("%d-%s-avatar%s", id, name, extension)
 }

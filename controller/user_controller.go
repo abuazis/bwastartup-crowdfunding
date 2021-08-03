@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bwastartup-crowdfunding/entity"
 	"bwastartup-crowdfunding/exception"
 	"bwastartup-crowdfunding/model"
 	"bwastartup-crowdfunding/service"
@@ -49,7 +50,7 @@ func (userController *userController) Register(c *gin.Context) {
 	// Check Email
 	ctx := context.Background()
 	_, err = userController.userService.CheckEmail(ctx, request.Email)
-	if err == nil {
+	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
 			Code:   http.StatusBadRequest,
 			Status: http.StatusText(http.StatusBadRequest),
@@ -157,5 +158,46 @@ func (userController *userController) Login(c *gin.Context) {
 		Code:   http.StatusOK,
 		Status: http.StatusText(http.StatusOK),
 		Data:   response,
+	})
+}
+
+func (userController *userController) UploadAvatar(c *gin.Context) {
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	ctx := context.Background()
+	userInfo := c.MustGet("userInfo").(entity.User)
+	avatarFileName, err := userController.userService.SaveAvatar(ctx, userInfo.Id, file.Filename)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	uploadDestination := "uploads/users/" + avatarFileName
+
+	err = c.SaveUploadedFile(file, uploadDestination)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: http.StatusText(http.StatusInternalServerError),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.WebResponse{
+		Code:   http.StatusOK,
+		Status: http.StatusText(http.StatusOK),
 	})
 }

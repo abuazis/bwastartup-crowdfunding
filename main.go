@@ -4,6 +4,7 @@ import (
 	"bwastartup-crowdfunding/controller"
 	"bwastartup-crowdfunding/database"
 	_ "bwastartup-crowdfunding/docs"
+	"bwastartup-crowdfunding/middleware"
 	"bwastartup-crowdfunding/repository"
 	"bwastartup-crowdfunding/service"
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,6 @@ import (
 // @host localhost:8080
 // @BasePath /api/v1
 // @schemes http
-
 func main() {
 	db := database.GetConnection()
 
@@ -33,10 +33,13 @@ func main() {
 	userController := controller.NewUserController(userService, authService)
 
 	r := gin.Default()
+	r.MaxMultipartMemory = 8 << 20
+
 	v1 := r.Group("/api/v1")
 	{
 		v1.POST("/users", userController.Register)
 		v1.POST("/sessions", userController.Login)
+		v1.POST("/avatars", middleware.AuthMiddleware(authService, userService), userController.UploadAvatar)
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

@@ -6,6 +6,7 @@ import (
 	"bwastartup-crowdfunding/repository"
 	"context"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -86,4 +87,21 @@ func TestUserServiceImpl_CheckEmail(t *testing.T) {
 		t.Error(err.Error())
 	}
 	fmt.Println(checkEmail)
+}
+
+func TestUserServiceImpl_GenerateAvatarName(t *testing.T) {
+	avatar := userService.GenerateAvatarName(1, "test service image", ".jpg")
+	assert.Equal(t, "1-test-service-image-avatar.jpg", avatar)
+	fmt.Println(avatar)
+}
+
+func TestUserServiceImpl_SaveAvatar(t *testing.T) {
+	ctx := context.Background()
+	avatar := userService.GenerateAvatarName(1, "test service image", ".txt")
+	_, err := userService.SaveAvatar(ctx, 1, avatar)
+	if err == nil {
+		t.Fail()
+	}
+	assert.Equal(t, "upload: invalid file extension", err.Error())
+	fmt.Println(err.Error())
 }
