@@ -8,11 +8,12 @@ import (
 	"testing"
 )
 
-var repository UserRepository
+var userRepository UserRepository
 
 func TestMain(m *testing.M) {
 	db := database.GetConnection()
-	repository = NewUserRepositoryImpl(db)
+	userRepository = NewUserRepositoryImpl(db)
+	campaignRepository = NewCampaignRepositoryImpl(db)
 
 	m.Run()
 }
@@ -27,7 +28,7 @@ func TestUserRepositoryImpl_Save(t *testing.T) {
 		Role:           "user",
 	}
 	ctx := context.Background()
-	saveUser, err := repository.Save(ctx, user)
+	saveUser, err := userRepository.Save(ctx, user)
 	if err != nil {
 		t.Error(err)
 	}
@@ -36,7 +37,7 @@ func TestUserRepositoryImpl_Save(t *testing.T) {
 
 func TestUserRepositoryImpl_FindByEmail(t *testing.T) {
 	ctx := context.Background()
-	user, err := repository.FindByEmail(ctx, "service@test.com")
+	user, err := userRepository.FindByEmail(ctx, "service@test.com")
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -45,7 +46,7 @@ func TestUserRepositoryImpl_FindByEmail(t *testing.T) {
 
 func TestUserRepositoryImpl_FindById(t *testing.T) {
 	ctx := context.Background()
-	user, err := repository.FindById(ctx, 1)
+	user, err := userRepository.FindById(ctx, 1)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -54,7 +55,7 @@ func TestUserRepositoryImpl_FindById(t *testing.T) {
 
 func TestUserRepositoryImpl_FindByIdFail(t *testing.T) {
 	ctx := context.Background()
-	_, err := repository.FindById(ctx, 999999)
+	_, err := userRepository.FindById(ctx, 999999)
 	if err == nil {
 		t.Fatal()
 	}
@@ -63,7 +64,7 @@ func TestUserRepositoryImpl_FindByIdFail(t *testing.T) {
 
 func TestUserRepositoryImpl_UpdateAvatar(t *testing.T) {
 	ctx := context.Background()
-	isUpdate, err := repository.UpdateAvatar(ctx, 1, "test-update.jpg")
+	isUpdate, err := userRepository.UpdateAvatar(ctx, 1, "test-update.jpg")
 	if err != nil {
 		t.Error(err.Error())
 	}
