@@ -32,14 +32,24 @@ func main() {
 	userService := service.NewUserServiceImpl(userRepository)
 	userController := controller.NewUserController(userService, authService)
 
+	campaignRepository := repository.NewCampaignRepositoryImpl(db)
+	campaignService := service.NewCampaignServiceImpl(campaignRepository)
+	campaignController := controller.NewCampaignController(campaignService)
+
 	r := gin.Default()
-	r.MaxMultipartMemory = 8 << 20
+	r.MaxMultipartMemory = 8 << 20 // 8mb max
+
+	r.Static("/uploads/", "./uploads")
 
 	v1 := r.Group("/api/v1")
 	{
+		// User
 		v1.POST("/users", userController.Register)
 		v1.POST("/sessions", userController.Login)
 		v1.POST("/avatars", middleware.AuthMiddleware(authService, userService), userController.UploadAvatar)
+
+		// Campaign
+		v1.GET("/campaigns", campaignController.GetCampaigns)
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
