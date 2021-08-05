@@ -15,6 +15,21 @@ func TestCampaignRepositoryImpl_FindByUserId(t *testing.T) {
 		t.Error(err.Error())
 	}
 	for _, campaign := range campaigns {
+		//fmt.Println(campaign)
 		fmt.Println(campaign)
+		fmt.Println()
+	}
+}
+
+func TestCampaignRepositoryImpl_FindAll(t *testing.T) {
+	ctx := context.Background()
+	campaigns, err := campaignRepository.FindAll(ctx)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	for _, campaign := range campaigns {
+		//fmt.Println(campaign)
+		fmt.Println(campaign)
+		fmt.Println()
 	}
 }
