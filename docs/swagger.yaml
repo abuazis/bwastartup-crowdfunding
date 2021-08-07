@@ -1,5 +1,35 @@
 basePath: /api/v1
 definitions:
+  model.CampaignDetailResponse:
+    properties:
+      current_amount:
+        type: integer
+      description:
+        type: string
+      goal_amount:
+        type: integer
+      id:
+        type: integer
+      images:
+        items:
+          $ref: '#/definitions/model.ImageDetailResponse'
+        type: array
+      perks:
+        items:
+          type: string
+        type: array
+      short_description:
+        type: string
+      title:
+        type: string
+    type: object
+  model.GetCampaignDetailResponse:
+    properties:
+      campaign:
+        $ref: '#/definitions/model.CampaignDetailResponse'
+      user:
+        $ref: '#/definitions/model.UserDetailResponse'
+    type: object
   model.GetCampaignResponse:
     properties:
       current_amount:
@@ -14,8 +44,17 @@ definitions:
         type: string
       short_description:
         type: string
+      slug:
+        type: string
       user_id:
         type: integer
+    type: object
+  model.ImageDetailResponse:
+    properties:
+      image_url:
+        type: string
+      is_primary:
+        type: boolean
     type: object
   model.LoginRequest:
     properties:
@@ -65,6 +104,15 @@ definitions:
       occupation:
         type: string
       token:
+        type: string
+    type: object
+  model.UserDetailResponse:
+    properties:
+      avatar_url:
+        type: string
+      id:
+        type: integer
+      name:
         type: string
     type: object
   model.WebResponse:
@@ -159,6 +207,38 @@ paths:
                   type: string
               type: object
       summary: Get campaign data
+  /campaigns/:id:
+    get:
+      description: must send campaign id in URI
+      operationId: get-campaign-details
+      parameters:
+      - description: CampaignID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.GetCampaignDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: Get campaign details with campaign id
   /sessions:
     post:
       consumes:

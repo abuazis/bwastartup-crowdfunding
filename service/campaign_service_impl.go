@@ -4,6 +4,7 @@ import (
 	"bwastartup-crowdfunding/model"
 	"bwastartup-crowdfunding/repository"
 	"context"
+	"strings"
 )
 
 type CampaignServiceImpl struct {
@@ -29,6 +30,7 @@ func (c *CampaignServiceImpl) FindAll(ctx context.Context) ([]model.GetCampaignR
 			ImageUrl:         model.BASE_URL + "uploads/campaigns/" + campaign.CampaignImages[0].FileName,
 			GoalAmount:       campaign.GoalAmount,
 			CurrentAmount:    campaign.CurrentAmount,
+			Slug:             campaign.Slug,
 		})
 	}
 
@@ -50,7 +52,41 @@ func (c *CampaignServiceImpl) FindByUserId(ctx context.Context, id uint32) ([]mo
 			ImageUrl:         model.BASE_URL + "uploads/campaigns/" + campaign.CampaignImages[0].FileName,
 			GoalAmount:       campaign.GoalAmount,
 			CurrentAmount:    campaign.CurrentAmount,
+			Slug:             campaign.Slug,
 		})
 	}
 	return campaignModels, nil
+}
+
+func (c *CampaignServiceImpl) FindById(ctx context.Context, id uint32) (model.GetCampaignDetailResponse, error) {
+	campaign, err := c.repository.FindById(ctx, id)
+	if err != nil {
+		return model.GetCampaignDetailResponse{}, err
+	}
+
+	campaignResponse := model.GetCampaignDetailResponse{
+		Campaign: model.CampaignDetailResponse{
+			Id:               campaign.Id,
+			Title:            campaign.Name,
+			ShortDescription: campaign.ShortDescription,
+			Description:      campaign.Description,
+			GoalAmount:       campaign.GoalAmount,
+			CurrentAmount:    campaign.CurrentAmount,
+			Perks:            strings.Split(campaign.Perks, ","),
+		},
+		User: model.UserDetailResponse{
+			Id:        campaign.User.Id,
+			Name:      campaign.User.Name,
+			AvatarUrl: model.BASE_URL + "uploads/users/" + campaign.User.AvatarFileName,
+		},
+	}
+
+	for _, image := range campaign.CampaignImages {
+		campaignResponse.Campaign.Images = append(campaignResponse.Campaign.Images, model.ImageDetailResponse{
+			ImageUrl:  model.BASE_URL + "uploads/campaigns/" + image.FileName,
+			IsPrimary: image.IsPrimary,
+		})
+	}
+
+	return campaignResponse, nil
 }

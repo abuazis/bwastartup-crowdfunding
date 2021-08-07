@@ -30,3 +30,12 @@ func TestCampaignServiceImpl_FindByUserId(t *testing.T) {
 		fmt.Println(campaign)
 	}
 }
+
+func TestCampaignServiceImpl_FindById(t *testing.T) {
+	ctx := context.Background()
+	response, err := campaignService.FindById(ctx, 1)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Println(response)
+}

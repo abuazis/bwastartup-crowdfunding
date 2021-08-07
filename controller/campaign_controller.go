@@ -79,3 +79,42 @@ func (campaignController *campaignController) GetCampaigns(c *gin.Context) {
 		Data:   campaignResponses,
 	})
 }
+
+// GetCampaignDetails godoc
+// @Summary Get campaign details with campaign id
+// @Description must send campaign id in URI
+// @ID get-campaign-details
+// @Produce json
+// @Param id path integer true "CampaignID"
+// @Success 200 {object} model.WebResponse{data=model.GetCampaignDetailResponse}
+// @Failure 400 {object} model.WebResponse{data=string}
+// @Router /campaigns/:id [get]
+func (campaignController *campaignController) GetCampaignDetails(c *gin.Context) {
+	var campaignRequest model.GetCampaignDetailRequest
+	err := c.ShouldBindUri(&campaignRequest)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	ctx := context.Background()
+	response, err := campaignController.campaignService.FindById(ctx, campaignRequest.Id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.WebResponse{
+		Code:   http.StatusOK,
+		Status: http.StatusText(http.StatusOK),
+		Data:   response,
+	})
+}

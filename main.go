@@ -24,6 +24,7 @@ import (
 // @BasePath /api/v1
 // @schemes http
 func main() {
+	//gin.SetMode(gin.ReleaseMode)
 	db := database.GetConnection()
 
 	authService := service.NewAuthServiceImpl()
@@ -50,6 +51,7 @@ func main() {
 
 		// Campaign
 		v1.GET("/campaigns", campaignController.GetCampaigns)
+		v1.GET("/campaigns/:id", campaignController.GetCampaignDetails)
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

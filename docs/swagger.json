@@ -144,6 +144,63 @@
                 }
             }
         },
+        "/campaigns/:id": {
+            "get": {
+                "description": "must send campaign id in URI",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get campaign details with campaign id",
+                "operationId": "get-campaign-details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "CampaignID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.GetCampaignDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/sessions": {
             "post": {
                 "description": "Login account use email and password.",
@@ -330,6 +387,52 @@
         }
     },
     "definitions": {
+        "model.CampaignDetailResponse": {
+            "type": "object",
+            "properties": {
+                "current_amount": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "goal_amount": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ImageDetailResponse"
+                    }
+                },
+                "perks": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "short_description": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.GetCampaignDetailResponse": {
+            "type": "object",
+            "properties": {
+                "campaign": {
+                    "$ref": "#/definitions/model.CampaignDetailResponse"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.UserDetailResponse"
+                }
+            }
+        },
         "model.GetCampaignResponse": {
             "type": "object",
             "properties": {
@@ -351,8 +454,22 @@
                 "short_description": {
                     "type": "string"
                 },
+                "slug": {
+                    "type": "string"
+                },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.ImageDetailResponse": {
+            "type": "object",
+            "properties": {
+                "image_url": {
+                    "type": "string"
+                },
+                "is_primary": {
+                    "type": "boolean"
                 }
             }
         },
@@ -427,6 +544,20 @@
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserDetailResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }
