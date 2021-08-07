@@ -31,3 +31,14 @@ func (c *CampaignRepositoryImpl) FindByUserId(ctx context.Context, userId uint32
 	}
 	return campaigns, nil
 }
+
+func (c *CampaignRepositoryImpl) FindById(ctx context.Context, id uint32) (entity.Campaign, error) {
+	var campaign entity.Campaign
+	err := c.Db.WithContext(ctx).Preload("User").Preload("CampaignImages", func(db *gorm.DB) *gorm.DB {
+		return db.Order("campaign_images.is_primary DESC")
+	}).Where("id=?", id).First(&campaign).Error
+	if err != nil {
+		return entity.Campaign{}, err
+	}
+	return campaign, nil
+}

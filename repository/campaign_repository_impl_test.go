@@ -33,3 +33,12 @@ func TestCampaignRepositoryImpl_FindAll(t *testing.T) {
 		fmt.Println()
 	}
 }
+
+func TestCampaignRepositoryImpl_FindById(t *testing.T) {
+	ctx := context.Background()
+	campaign, err := campaignRepository.FindById(ctx, 1)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Println(campaign)
+}
