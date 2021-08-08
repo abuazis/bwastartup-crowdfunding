@@ -42,3 +42,11 @@ func (c *CampaignRepositoryImpl) FindById(ctx context.Context, id uint32) (entit
 	}
 	return campaign, nil
 }
+
+func (c *CampaignRepositoryImpl) Save(ctx context.Context, campaign entity.Campaign) (entity.Campaign, error) {
+	err := c.Db.WithContext(ctx).Create(&campaign).Error
+	if err != nil {
+		return entity.Campaign{}, err
+	}
+	return campaign, nil
+}

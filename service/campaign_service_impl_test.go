@@ -1,9 +1,11 @@
 package service
 
 import (
+	"bwastartup-crowdfunding/model"
 	"bwastartup-crowdfunding/repository"
 	"context"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -34,6 +36,29 @@ func TestCampaignServiceImpl_FindByUserId(t *testing.T) {
 func TestCampaignServiceImpl_FindById(t *testing.T) {
 	ctx := context.Background()
 	response, err := campaignService.FindById(ctx, 1)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Println(response)
+}
+
+func TestCampaignServiceImpl_GenerateSlug(t *testing.T) {
+	slug := campaignService.GenerateSlug("Test Slug", 10)
+	assert.Equal(t, "test-slug-10", slug)
+}
+
+func TestCampaignServiceImpl_Create(t *testing.T) {
+	request := model.CreateCampaignRequest{
+		Name:             "Test Create Campaign",
+		ShortDescription: "shot",
+		Description:      "longgggg",
+		GoalAmount:       500_000,
+		Perks:            "Ilmu yang bermanfaat,pahala",
+		UserId:           2,
+	}
+
+	ctx := context.Background()
+	response, err := campaignService.Create(ctx, request)
 	if err != nil {
 		t.Error(err.Error())
 	}

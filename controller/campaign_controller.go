@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"bwastartup-crowdfunding/entity"
+	"bwastartup-crowdfunding/exception"
 	"bwastartup-crowdfunding/model"
 	"bwastartup-crowdfunding/service"
 	"context"
@@ -116,5 +118,40 @@ func (campaignController *campaignController) GetCampaignDetails(c *gin.Context)
 		Code:   http.StatusOK,
 		Status: http.StatusText(http.StatusOK),
 		Data:   response,
+	})
+}
+
+func (campaignController *campaignController) CreateCampaign(c *gin.Context) {
+	userInfo := c.MustGet("userInfo").(entity.User)
+
+	var request model.CreateCampaignRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, model.WebResponse{
+			Code:   http.StatusUnprocessableEntity,
+			Status: http.StatusText(http.StatusUnprocessableEntity),
+			Data:   exception.ValidationError(err),
+		})
+		return
+	}
+
+	request.UserId = userInfo.Id
+
+	ctx := context.Background()
+	campaignResponse, err := campaignController.campaignService.Create(ctx, request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	// Success
+	c.JSON(http.StatusOK, model.WebResponse{
+		Code:   http.StatusOK,
+		Status: http.StatusText(http.StatusOK),
+		Data:   campaignResponse,
 	})
 }

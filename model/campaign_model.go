@@ -41,3 +41,19 @@ type UserDetailResponse struct {
 	Name      string `json:"name"`
 	AvatarUrl string `json:"avatar_url"`
 }
+
+type CreateCampaignRequest struct {
+	Name             string `json:"name" binding:"required"`
+	ShortDescription string `json:"short_description" binding:"required"`
+	Description      string `json:"description" binding:"required"`
+	GoalAmount       uint64 `json:"goal_amount" binding:"required"`
+	Perks            string `json:"perks" binding:"required"`
+	UserId           uint32
+}
+type CreateCampaignResponse struct {
+	Name             string `json:"name"`
+	ShortDescription string `json:"short_description"`
+	Description      string `json:"description"`
+	GoalAmount       uint64 `json:"goal_amount"`
+	Perks            string `json:"perks"`
+}

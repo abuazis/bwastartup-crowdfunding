@@ -1,9 +1,11 @@
 package service
 
 import (
+	"bwastartup-crowdfunding/entity"
 	"bwastartup-crowdfunding/model"
 	"bwastartup-crowdfunding/repository"
 	"context"
+	"strconv"
 	"strings"
 )
 
@@ -32,6 +34,7 @@ func (c *CampaignServiceImpl) FindAll(ctx context.Context) ([]model.GetCampaignR
 			CurrentAmount:    campaign.CurrentAmount,
 			Slug:             campaign.Slug,
 		})
+
 	}
 
 	return campaignModels, nil
@@ -89,4 +92,35 @@ func (c *CampaignServiceImpl) FindById(ctx context.Context, id uint32) (model.Ge
 	}
 
 	return campaignResponse, nil
+}
+
+func (c *CampaignServiceImpl) Create(ctx context.Context, request model.CreateCampaignRequest) (model.GetCampaignResponse, error) {
+	campaign := entity.Campaign{
+		UserId:           request.UserId,
+		Name:             request.Name,
+		ShortDescription: request.ShortDescription,
+		Description:      request.Description,
+		Perks:            request.Perks,
+		GoalAmount:       request.GoalAmount,
+		Slug:             c.GenerateSlug(request.Name, request.UserId),
+	}
+
+	save, err := c.repository.Save(ctx, campaign)
+	if err != nil {
+		return model.GetCampaignResponse{}, err
+	}
+
+	return model.GetCampaignResponse{
+		Id:               save.Id,
+		Name:             save.Name,
+		UserId:           save.UserId,
+		GoalAmount:       save.GoalAmount,
+		ShortDescription: save.ShortDescription,
+		Slug:             save.Slug,
+	}, nil
+}
+
+// GenerateSlug Generate slug : name-id
+func (c *CampaignServiceImpl) GenerateSlug(name string, userId uint32) string {
+	return strings.Join(strings.Split(strings.ToLower(strings.Trim(name, " ")), " "), "-") + "-" + strconv.Itoa(int(userId))
 }
