@@ -50,10 +50,3 @@ type CreateCampaignRequest struct {
 	Perks            string `json:"perks" binding:"required"`
 	UserId           uint32
 }
-type CreateCampaignResponse struct {
-	Name             string `json:"name"`
-	ShortDescription string `json:"short_description"`
-	Description      string `json:"description"`
-	GoalAmount       uint64 `json:"goal_amount"`
-	Perks            string `json:"perks"`
-}

@@ -5,6 +5,7 @@ import (
 	"bwastartup-crowdfunding/model"
 	"bwastartup-crowdfunding/repository"
 	"context"
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -123,4 +124,36 @@ func (c *CampaignServiceImpl) Create(ctx context.Context, request model.CreateCa
 // GenerateSlug Generate slug : name-id
 func (c *CampaignServiceImpl) GenerateSlug(name string, userId uint32) string {
 	return strings.Join(strings.Split(strings.ToLower(strings.Trim(name, " ")), " "), "-") + "-" + strconv.Itoa(int(userId))
+}
+
+func (c *CampaignServiceImpl) Update(ctx context.Context, request model.CreateCampaignRequest, id uint32) (model.GetCampaignResponse, error) {
+	campaign, err := c.repository.FindById(ctx, id)
+	if err != nil {
+		return model.GetCampaignResponse{}, err
+	}
+	if campaign.UserId != request.UserId {
+		return model.GetCampaignResponse{}, errors.New("campaign: not an owner of the campaign")
+	}
+
+	campaign.Name = request.Name
+	campaign.ShortDescription = request.ShortDescription
+	campaign.Description = request.Description
+	campaign.Perks = request.Perks
+	campaign.GoalAmount = request.GoalAmount
+
+	update, err := c.repository.Update(ctx, campaign)
+	if err != nil {
+		return model.GetCampaignResponse{}, err
+	}
+
+	return model.GetCampaignResponse{
+		Id:               update.Id,
+		UserId:           update.UserId,
+		Name:             update.Name,
+		ShortDescription: update.ShortDescription,
+		ImageUrl:         update.CampaignImages[0].FileName,
+		GoalAmount:       update.GoalAmount,
+		CurrentAmount:    update.CurrentAmount,
+		Slug:             update.Slug,
+	}, nil
 }

@@ -50,3 +50,11 @@ func (c *CampaignRepositoryImpl) Save(ctx context.Context, campaign entity.Campa
 	}
 	return campaign, nil
 }
+
+func (c *CampaignRepositoryImpl) Update(ctx context.Context, campaign entity.Campaign) (entity.Campaign, error) {
+	err := c.Db.WithContext(ctx).Model(&entity.Campaign{}).Where("id=?", campaign.Id).Updates(campaign).Error
+	if err != nil {
+		return entity.Campaign{}, err
+	}
+	return campaign, nil
+}

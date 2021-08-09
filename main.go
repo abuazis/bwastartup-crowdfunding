@@ -24,7 +24,7 @@ import (
 // @BasePath /api/v1
 // @schemes http
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 	db := database.GetConnection()
 
 	authService := service.NewAuthServiceImpl()
@@ -53,6 +53,7 @@ func main() {
 		v1.GET("/campaigns", campaignController.GetCampaigns)
 		v1.GET("/campaigns/:id", campaignController.GetCampaignDetails)
 		v1.POST("/campaigns", middleware.AuthMiddleware(authService, userService), campaignController.CreateCampaign)
+		v1.PUT("/campaigns/:id", middleware.AuthMiddleware(authService, userService), campaignController.UpdateCampaign)
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

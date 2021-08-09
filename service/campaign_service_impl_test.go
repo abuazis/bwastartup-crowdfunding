@@ -64,3 +64,21 @@ func TestCampaignServiceImpl_Create(t *testing.T) {
 	}
 	fmt.Println(response)
 }
+
+func TestCampaignServiceImpl_Update(t *testing.T) {
+	ctx := context.Background()
+	request := model.CreateCampaignRequest{
+		Name:             "Test Update From Service",
+		ShortDescription: "ngetes",
+		Description:      "-",
+		GoalAmount:       1_000_000_000,
+		Perks:            "pahalaaa,pahalaaa",
+		UserId:           1,
+	}
+
+	update, err := campaignService.Update(ctx, request, 1)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Println(update)
+}

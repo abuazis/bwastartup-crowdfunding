@@ -11,4 +11,5 @@ type CampaignService interface {
 	FindById(ctx context.Context, id uint32) (model.GetCampaignDetailResponse, error)
 	Create(ctx context.Context, request model.CreateCampaignRequest) (model.GetCampaignResponse, error)
 	GenerateSlug(name string, id uint32) string
+	Update(ctx context.Context, request model.CreateCampaignRequest, id uint32) (model.GetCampaignResponse, error)
 }

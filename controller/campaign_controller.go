@@ -155,3 +155,48 @@ func (campaignController *campaignController) CreateCampaign(c *gin.Context) {
 		Data:   campaignResponse,
 	})
 }
+
+func (campaignController *campaignController) UpdateCampaign(c *gin.Context) {
+	// URI request
+	var requestId model.GetCampaignDetailRequest
+	err := c.ShouldBindUri(&requestId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	// Body request
+	userInfo := c.MustGet("userInfo").(entity.User)
+	var request model.CreateCampaignRequest
+	err = c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, model.WebResponse{
+			Code:   http.StatusUnprocessableEntity,
+			Status: http.StatusText(http.StatusUnprocessableEntity),
+			Data:   exception.ValidationError(err),
+		})
+		return
+	}
+	request.UserId = userInfo.Id
+
+	ctx := context.Background()
+	response, err := campaignController.campaignService.Update(ctx, request, requestId.Id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.WebResponse{
+		Code:   http.StatusOK,
+		Status: http.StatusText(http.StatusOK),
+		Data:   response,
+	})
+}
