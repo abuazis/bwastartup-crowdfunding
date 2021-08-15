@@ -11,4 +11,6 @@ type CampaignRepository interface {
 	FindById(ctx context.Context, id uint32) (entity.Campaign, error)
 	Save(ctx context.Context, campaign entity.Campaign) (entity.Campaign, error)
 	Update(ctx context.Context, campaign entity.Campaign) (entity.Campaign, error)
+	CreateImage(ctx context.Context, image entity.CampaignImage) (entity.CampaignImage, error)
+	MarkAllImagesAsNonPrimary(campaignId uint32) error
 }

@@ -58,3 +58,19 @@ func (c *CampaignRepositoryImpl) Update(ctx context.Context, campaign entity.Cam
 	}
 	return campaign, nil
 }
+
+func (c *CampaignRepositoryImpl) CreateImage(ctx context.Context, image entity.CampaignImage) (entity.CampaignImage, error) {
+	err := c.Db.WithContext(ctx).Create(&image).Error
+	if err != nil {
+		return entity.CampaignImage{}, err
+	}
+	return image, nil
+}
+
+func (c *CampaignRepositoryImpl) MarkAllImagesAsNonPrimary(campaignId uint32) error {
+	err := c.Db.Model(&entity.CampaignImage{}).Where("campaign_id=?", campaignId).Update("is_primary", false).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

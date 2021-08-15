@@ -200,3 +200,59 @@ func (campaignController *campaignController) UpdateCampaign(c *gin.Context) {
 		Data:   response,
 	})
 }
+
+func (campaignController *campaignController) UploadImage(c *gin.Context) {
+	// Form request
+	var request model.CreateCampaignImageRequest
+	err := c.ShouldBind(&request)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, model.WebResponse{
+			Code:   http.StatusUnprocessableEntity,
+			Status: http.StatusText(http.StatusUnprocessableEntity),
+			Data:   exception.ValidationError(err),
+		})
+		return
+	}
+
+	// JWT Auth
+	userInfo := c.MustGet("userInfo").(entity.User)
+	request.UserId = userInfo.Id
+
+	// Image File Form
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	ctx := context.Background()
+	imageName, err := campaignController.campaignService.SaveCampaignImage(ctx, request, file.Filename)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: http.StatusText(http.StatusBadRequest),
+			Data:   err.Error(),
+		})
+		return
+	}
+	uploadDestination := "uploads/campaigns/" + imageName
+
+	err = c.SaveUploadedFile(file, uploadDestination)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: http.StatusText(http.StatusInternalServerError),
+			Data:   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.WebResponse{
+		Code:   http.StatusOK,
+		Status: http.StatusText(http.StatusOK),
+	})
+}

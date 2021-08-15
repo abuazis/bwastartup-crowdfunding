@@ -33,7 +33,7 @@ func NewUserController(userService service.UserService, authService service.Auth
 // @Failure 400 {object} model.WebResponse{data=string}
 // @Failure 422 {object} model.WebResponse{data=[]string}
 // @Router /users [post]
-func (campaignController *userController) Register(c *gin.Context) {
+func (userController *userController) Register(c *gin.Context) {
 	var request model.RegisterRequest
 
 	// Get request data
@@ -49,7 +49,7 @@ func (campaignController *userController) Register(c *gin.Context) {
 
 	// Check Email
 	ctx := context.Background()
-	_, err = campaignController.userService.CheckEmail(ctx, request.Email)
+	_, err = userController.userService.CheckEmail(ctx, request.Email)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
 			Code:   http.StatusBadRequest,
@@ -60,7 +60,7 @@ func (campaignController *userController) Register(c *gin.Context) {
 	}
 
 	// Create user
-	response, err := campaignController.userService.Register(ctx, request)
+	response, err := userController.userService.Register(ctx, request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
 			Code:   http.StatusBadRequest,
@@ -71,7 +71,7 @@ func (campaignController *userController) Register(c *gin.Context) {
 	}
 
 	// Generate JWT
-	generateToken, err := campaignController.authService.GenerateToken(response.Id)
+	generateToken, err := userController.authService.GenerateToken(response.Id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
 			Code:   http.StatusBadRequest,
@@ -102,7 +102,7 @@ func (campaignController *userController) Register(c *gin.Context) {
 // @Failure 422 {object} model.WebResponse{data=[]string}
 // @Failure 500 {object} model.WebResponse{data=string}
 // @Router /sessions [post]
-func (campaignController *userController) Login(c *gin.Context) {
+func (userController *userController) Login(c *gin.Context) {
 	// Get request data
 	var loginRequest model.LoginRequest
 	err := c.ShouldBindJSON(&loginRequest)
@@ -117,7 +117,7 @@ func (campaignController *userController) Login(c *gin.Context) {
 
 	// User login
 	ctx := context.Background()
-	response, err := campaignController.userService.Login(ctx, loginRequest)
+	response, err := userController.userService.Login(ctx, loginRequest)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusUnauthorized, model.WebResponse{
@@ -142,7 +142,7 @@ func (campaignController *userController) Login(c *gin.Context) {
 	}
 
 	// Generate JWT
-	generateToken, err := campaignController.authService.GenerateToken(response.Id)
+	generateToken, err := userController.authService.GenerateToken(response.Id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
 			Code:   http.StatusBadRequest,
@@ -172,7 +172,7 @@ func (campaignController *userController) Login(c *gin.Context) {
 // @Failure 400 {object} model.WebResponse{data=string}
 // @Failure 500 {object} model.WebResponse{data=string}
 // @Router /avatars [post]
-func (campaignController *userController) UploadAvatar(c *gin.Context) {
+func (userController *userController) UploadAvatar(c *gin.Context) {
 	file, err := c.FormFile("avatar")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
@@ -185,7 +185,7 @@ func (campaignController *userController) UploadAvatar(c *gin.Context) {
 
 	ctx := context.Background()
 	userInfo := c.MustGet("userInfo").(entity.User)
-	avatarFileName, err := campaignController.userService.SaveAvatar(ctx, userInfo.Id, file.Filename)
+	avatarFileName, err := userController.userService.SaveAvatar(ctx, userInfo.Id, file.Filename)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, model.WebResponse{
 			Code:   http.StatusBadRequest,

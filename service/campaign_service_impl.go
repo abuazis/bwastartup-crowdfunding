@@ -6,6 +6,8 @@ import (
 	"bwastartup-crowdfunding/repository"
 	"context"
 	"errors"
+	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -156,4 +158,46 @@ func (c *CampaignServiceImpl) Update(ctx context.Context, request model.CreateCa
 		CurrentAmount:    update.CurrentAmount,
 		Slug:             update.Slug,
 	}, nil
+}
+
+func (c *CampaignServiceImpl) SaveCampaignImage(ctx context.Context, request model.CreateCampaignImageRequest, fileName string) (string, error) {
+	campaign, err := c.repository.FindById(ctx, request.CampaignId)
+	if err != nil {
+		return "", err
+	}
+
+	if campaign.UserId != request.UserId {
+		return "", errors.New("campaign: not an owner of the campaign")
+	}
+
+	if request.IsPrimary {
+		err := c.repository.MarkAllImagesAsNonPrimary(request.UserId)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	ext := filepath.Ext(fileName)
+	// Validate image extension
+	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
+		return "", errors.New("upload: invalid file extension")
+	}
+	generateName := c.GenerateCampaignImageName(request.CampaignId, request.UserId, fileName, ext)
+
+	campaignImage := entity.CampaignImage{
+		CampaignId: request.CampaignId,
+		FileName:   generateName,
+		IsPrimary:  request.IsPrimary,
+	}
+
+	_, err = c.repository.CreateImage(ctx, campaignImage)
+	if err != nil {
+		return "", err
+	}
+	return generateName, nil
+}
+
+func (c *CampaignServiceImpl) GenerateCampaignImageName(campaignId uint32, userId uint32, fileName string, extension string) string {
+	name := strings.Join(strings.Split(fileName, " "), "-")
+	return fmt.Sprintf("%d-user%d-%s-campaign%s", campaignId, userId, name, extension)
 }

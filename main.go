@@ -54,6 +54,7 @@ func main() {
 		v1.GET("/campaigns/:id", campaignController.GetCampaignDetails)
 		v1.POST("/campaigns", middleware.AuthMiddleware(authService, userService), campaignController.CreateCampaign)
 		v1.PUT("/campaigns/:id", middleware.AuthMiddleware(authService, userService), campaignController.UpdateCampaign)
+		v1.POST("/campaign-images", middleware.AuthMiddleware(authService, userService), campaignController.UploadImage)
 	}
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
